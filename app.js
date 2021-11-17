@@ -82,6 +82,26 @@ app.use(function(req, res, next) {
   next(createError(404));
 });
 
+function auth(req, res, next) {
+  console.log(req.session);
+
+  if(!req.session.user) {
+    const err = new Error('You are not authenticated!');
+    err.status = 401;
+    return next(err);
+  }
+  else {
+    if (req.session.user === 'authenticated') {
+      return next();
+    }
+    else {
+      const err = new Error('You are not authenticated!');
+      err.status = 401;
+      return next(err);
+    }
+  }
+}
+
 // error handler
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
