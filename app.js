@@ -1,13 +1,15 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const passport = require('passport');
+const authenticate = require('./authenticate');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
 
-var app = express();
+const app = express();
 
 const campsiteRouter = require('./routes/campsiteRouter');
 const promotionRouter = require('./routes/promotionRouter');
@@ -77,6 +79,7 @@ app.use('/campsites', campsiteRouter);
 app.use('/promotions', promotionRouter);
 app.use('/partners', partnerRouter);
 
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
@@ -99,6 +102,22 @@ function auth(req, res, next) {
       err.status = 401;
       return next(err);
     }
+  }
+}
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+function auth(req, res, next) {
+  console.log(req.user);
+
+  if(!req.user) {
+    const err = new Error('You are not authenticated!');
+    err.status = 401;
+    return next(err);
+  }
+  else {
+    return next();
   }
 }
 
